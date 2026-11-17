@@ -47,6 +47,7 @@
 #include "at_web_dns_server.h"
 static char *s_at_web_redirect_url = NULL;
 #endif
+#include "esp_mac.h"
 
 #define ESP_AT_WEB_SERVER_CHECK(a, str, goto_tag, ...)                                              \
     do                                                                                 \
@@ -1275,6 +1276,11 @@ static esp_err_t config_wifi_get_handler(httpd_req_t *req)
         json_len += sprintf(temp_json_str + json_len, "{\"state\":0,"); // it means http context OK
     }
 
+    // add sta_mac to json str
+    uint8_t sta_mac[6];
+    esp_read_mac(sta_mac, ESP_MAC_WIFI_STA);
+    json_len += sprintf(temp_json_str + json_len, "\"sta_mac\":\"%02X:%02X:%02X:%02X:%02X:%02X\",", sta_mac[0], sta_mac[1], sta_mac[2], sta_mac[3], sta_mac[4], sta_mac[5]);
+    
     // add ssid to json str
     // note: escape special non-control characters in json format, see https://www.json.org/json-en.html for more details
     json_len += sprintf(temp_json_str + json_len, "\"sta_ssid\":\"");
